@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Convert CSV File</title>
+</head>
+<body>
+    <h1>Convert CSV File</h1>
+    <label for="inputFile">Input File:</label>
+    <input type="file" id="inputFile"><br>
+    <label for="csvContent">Or paste CSV content:</label><br>
+    <textarea id="csvContent" rows="10" cols="50"></textarea><br>
+    <label for="outputFile">Output File:</label>
+    <input type="text" id="outputFile" value="output"><br>
+    <button onclick="convert()">Convert</button>
+    <script>
+        function convert() {
+            // Get the input file path and contents
+            const inputFile = document.getElementById("inputFile").files[0];
+            const csvContent = document.getElementById("csvContent").value.trim();
+
+            // Check if both the input file and CSV content were specified
+            if (!inputFile && !csvContent) {
+                alert("Please specify either an input file or paste CSV content.");
+                return;
+            }
+
+            // Check if both the output file and CSV content were specified
+            const outputFile = document.getElementById("outputFile").value;
+            if (!outputFile) {
+                alert("Please specify an output file.");
+                return;
+            }
+
+            // Read the CSV data
+            let data;
+            if (inputFile) {
+                // Read the input file
+                const reader = new FileReader();
+                reader.readAsText(inputFile);
+                reader.onload = function() {
+                    data = reader.result;
+                    processData(data);
+                };
+            } else {
+                // Use the CSV content from the input box
+                data = csvContent;
+                processData(data);
+            }
+
+            function processData(data) {
+                // Remove all columns except the first two
+                const lines = data.split("\n");
+                const newData = lines.map(line => {
+                    const columns = line.split(",");
+                    return [columns[0], columns[1]].join(",");
+                }).join("\n");
+
+                // Write the modified data to the output file
+                const blob = new Blob([newData], { type: "text/csv" });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = outputFile;
+                a.click();
+            }
+        }
+    </script>
+</body>
+</html>
